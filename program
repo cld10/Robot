@@ -1,0 +1,144 @@
+using System;
+using System.Collections.Generic;
+
+
+         /* 
+            GiantKillerRobot
+                     Atribute:
+                              EyeLaserIntensity: Intensitatea laserului.
+                              Targets: Lista de ținte.
+                              CurrentTarget: Ținta curentă.
+                              Active: Starea de activitate a robotului.
+                     Metode:
+                              Initialize(): Metodă pentru inițializarea robotului.
+                              FireLaserAt(Target target): Metodă pentru a trage cu laserul în ținta specificată.
+                              AcquireNextTarget(): Metodă pentru a achiziționa următoarea țintă.
+            Target
+                     Atribute:
+                              IsAlive: Starea de viață a țintei.
+                              Type: Tipul țintei (animal, om, supererou).
+            Planet
+                     Atribute:
+                              Name: Numele planetei.
+                              ContainsLife: Starea de viață pe planetă.
+        */
+class Target
+{
+    public string Type { get; private set; }
+    public bool IsAlive { get; private set; }
+
+    public Target(string type)
+    {
+        Type = type;
+        IsAlive = true;
+    }
+
+    public void Kill()
+    {
+        IsAlive = false;
+    }
+}
+
+class Planet
+{
+    public string Name { get; private set; }
+    public bool ContainsLife { get; set; }
+
+    public Planet(string name)
+    {
+        Name = name;
+        ContainsLife = true;
+    }
+}
+
+class GiantKillerRobot
+{
+    public string EyeLaserIntensity { get; private set; }
+    private List<Target> Targets { get; set; }
+    private Target CurrentTarget { get; set; }
+    public bool Active { get; private set; }
+
+    public GiantKillerRobot()
+    {
+        Active = true;
+    }
+
+    public void Initialize()
+    {
+        EyeLaserIntensity = "Kill";
+        Targets = new List<Target>
+        {
+            new Target("Animal"),
+            new Target("Human"),
+            new Target("Superhero")
+        };
+    }
+
+    public void FireLaserAt(Target target)
+    {
+        if (target.IsAlive)
+        {
+            Console.WriteLine($"Firing laser at {target.Type}");
+            target.Kill();
+        }
+        else
+        {
+            Console.WriteLine($"{target.Type} is already dead");
+        }
+    }
+
+    public void AcquireNextTarget()
+    {
+        foreach (var target in Targets)
+        {
+            if (target.IsAlive)
+            {
+                CurrentTarget = target;
+                return;
+            }
+        }
+        CurrentTarget = null;
+    }
+
+    public void ExecuteMission(Planet planet)
+    {
+        AcquireNextTarget();
+        while (Active && planet.ContainsLife)
+        {
+            if (CurrentTarget != null && CurrentTarget.IsAlive)
+            {
+                FireLaserAt(CurrentTarget);
+            }
+            else
+            {
+                AcquireNextTarget();
+            }
+
+            if (Targets.TrueForAll(t => !t.IsAlive))
+            {
+                planet.ContainsLife = false;
+            }
+        }
+    }
+}
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        GiantKillerRobot robot = new GiantKillerRobot();
+        robot.Initialize();
+
+        Planet earth = new Planet("Earth");
+        robot.ExecuteMission(earth);
+
+        Console.WriteLine($"Mission completed. Planet {earth.Name} contains life: {earth.ContainsLife}");
+    }
+}
+
+    /*Explicație:
+        Clasele Target, Planet, și GiantKillerRobot sunt create pentru a modela robotul, țintele sale și planeta.
+        Metoda ExecuteMission din clasa GiantKillerRobot implementează logica de a căuta și ataca țintele până când toate sunt eliminate.
+        Robotul inițializează și configurează intensitatea laserului și lista de ținte.
+        Robotul continuă să atace țintele până când toate sunt eliminate și planeta nu mai conține viață.
+    */
